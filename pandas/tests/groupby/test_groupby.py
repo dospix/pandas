@@ -2031,6 +2031,36 @@ def test_empty_groupby(columns, keys, values, method, op, request, using_array_m
     tm.assert_equal(result, expected)
 
 
+@pytest.mark.parametrize(
+    "method", ["mean", "sum", "median", "apply", "min", "max", "all", "any"]
+)
+def test_groupby_methods_keeping_columns_for_empty_dataframes(method):
+    # GH 46375
+    df = DataFrame(columns=["a", "b", "c"])
+    groupby_object = df.groupby("a")
+
+    if method == "mean":
+        result = groupby_object.mean()
+    elif method == "sum":
+        result = groupby_object.sum()
+    elif method == "median":
+        result = groupby_object.median()
+    elif method == "apply":
+        result = groupby_object.apply(lambda x: x)
+    elif method == "min":
+        result = groupby_object.min()
+    elif method == "max":
+        result = groupby_object.max()
+    elif method == "all":
+        result = groupby_object.all()
+    elif method == "any":
+        result = groupby_object.any()
+
+    expected = DataFrame(columns=["a", "b", "c"])
+
+    tm.assert_frame_equal(result, expected)
+
+
 def test_empty_groupby_apply_nonunique_columns():
     # GH#44417
     df = DataFrame(np.random.randn(0, 4))
